@@ -34,7 +34,7 @@ class Player:
         return self.name
 
     def find_player_stats(self):
-        """populates a dictionary with a player's stats from the 2014-2015 season"""
+        """populates a dictionary with a player's stats per game from the 2014-2015 season"""
         response = requests.get(root_url+self.url)
         soup = bs4.BeautifulSoup(response.content)
     
@@ -142,14 +142,16 @@ class Season:
                 name = western_conference_soup[index].td.a.string               
                 team_url = western_conference_soup[index].td.a['href']
                 self.teams.append(Team(str(name),team_url,division,'Western'))
-    
 
 
-a = Season('http://www.basketball-reference.com/leagues/NBA_2015.html')
-a.teams[15].get_team_roster()
-a.teams[15].players[3].find_player_stats()
-print(a.teams[15].name)
-print(a.teams[15].players[3].stats)
+
+
+if __name__ == '__main__':
+    a = Season('http://www.basketball-reference.com/leagues/NBA_2015.html')
+    a.teams[15].get_team_roster()
+    a.teams[15].players[1].find_player_stats()
+    print(a.teams[15].name)
+    print(a.teams[15].players[1].stats)
 
 
 
