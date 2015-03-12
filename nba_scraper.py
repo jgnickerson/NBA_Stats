@@ -2,13 +2,11 @@
 """
 Created on Mon Dec 22 23:46:31 2014
 
-@author: jgnickerson
+@author: Gordon Nickerson
 
-Basketball Stats Scraper
+NBA Stats Scraper
 Features to Add:
--Find player URLs, possibly by making team rosters
--Scrape team rosters and populate team dictionaries with the individual player dictionaries
--Comparisons between players
+Sorting methods to list best player on each team (given certain criteria)
 
 """
 
@@ -16,15 +14,15 @@ import requests
 import bs4
 
 root_url = 'http://www.basketball-reference.com'
-response = requests.get('http://www.basketball-reference.com/players/a/aldrila01.html')
-soup = bs4.BeautifulSoup(response.text)
+"""response = requests.get('http://www.basketball-reference.com/players/a/aldrila01.html')
+soup = bs4.BeautifulSoup(response.text)"""
 
 
 class Player:
     def __init__(self,jersey_number,name,url):
         self.jersey_number = str(jersey_number)
         self.name = str(name)
-        self.url = str(url)
+        self.url = 'http://www.basketball-reference.com' + str(url)
         self.stats = {}
         
     def __str__(self):
@@ -51,8 +49,6 @@ class Player:
         for index in range(len(stat_categories)):
             self.stats[stat_categories[index]] = stat_numbers[index]
         
-
-
 class Team:
 
     def __init__(self,name,team_url,division,conference):
@@ -144,14 +140,18 @@ class Season:
                 self.teams.append(Team(str(name),team_url,division,'Western'))
 
 
-
-
 if __name__ == '__main__':
     a = Season('http://www.basketball-reference.com/leagues/NBA_2015.html')
-    a.teams[15].get_team_roster()
-    a.teams[15].players[1].find_player_stats()
-    print(a.teams[15].name)
-    print(a.teams[15].players[1].stats)
+    """populates all team rosters"""
+    for index in range(0,len(a.teams)):
+        a.teams[index].get_team_roster()
+    """prints out information about each team"""
+    for team in a.teams:
+        print(team.name)
+        print(team.division)
+        for player in team.players:
+            print(player)
+        print('')
 
 
 
