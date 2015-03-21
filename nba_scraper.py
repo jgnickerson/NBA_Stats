@@ -18,12 +18,28 @@ root_url = 'http://www.basketball-reference.com'
 soup = bs4.BeautifulSoup(response.text)"""
 
 
+
+def createStatTemplate():
+    """creates a template dictionary of PerGame stat categories"""
+    response = requests.get("http://www.basketball-reference.com/teams/POR/2015.html")
+    soup = bs4.BeautifulSoup(response.content)
+    categories = soup.find(id='per_game').thead.tr.contents
+
+    stat_categories = []
+
+    for index in range(1,len(categories),2):
+        stat_categories.append(categories[index].string)
+    print(stat_categories)
+
+statTemplate = ['Rk', 'Player', 'Age', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
+#created with below method, relevant for perGame stats only
+
 class Player:
-    def __init__(self,jersey_number,name,url):
+    def __init__(self,jersey_number,name,url,stats):
         self.jersey_number = str(jersey_number)
-        self.name = str(name)
+        self.name = stats[1]
         self.url = 'http://www.basketball-reference.com' + str(url)
-        self.stats = {}
+        self.stats = stats
         
     def __str__(self):
         return self.name
@@ -65,10 +81,22 @@ class Team:
     def __repr__(self):
         return self.name       
 
+    def getTeamStats(self):
+        """populates a team roster, with all player stats"""
+        response = requests.get(self.team_url)
+        soup = bs4.BeautifulSoup(response.content)
+        roster = soup.find(id='per_game').tbody
+
+        for player_number in range(1,len(roster),2):
+            playerStatTable = roster.contents[player_number].contents
+            perGameStats = []
+            for stat in range(1,len(playerStatTable),2):
+                perGameStats.append(playerStatTable[stat].string)
+            self.players.append(Player('blah','blah','blah',perGameStats))
 
     def get_team_roster(self):
         """populates a team roster, with player's URLs"""
-    
+
         response = requests.get(self.team_url)
         soup = bs4.BeautifulSoup(response.content)
         roster = soup.find(id='all_roster').tbody
@@ -80,6 +108,11 @@ class Team:
             url = player.contents[3].next_element['href']
             self.players.append(Player(jersey_number,name,url))
 
+
+
+
+#should change this to not be it's own class, rather just a standalone method which creates a list. 
+# unnecessary if I'm only going to have one season
 class Season:
     """a list of all NBA Teams in a given season"""
     def __init__(self,season_url):
@@ -141,17 +174,27 @@ class Season:
 
 
 if __name__ == '__main__':
+    
+
     a = Season('http://www.basketball-reference.com/leagues/NBA_2015.html')
+    a.get_teams
+    a.teams[15].getTeamStats()
+    print(a.teams[15].players[0].stats)
+    
+    #a.teams[15].getTeamStats()
+
     """populates all team rosters"""
-    for index in range(0,len(a.teams)):
-        a.teams[index].get_team_roster()
+    
+    #for index in range(0,len(a.teams)):
+    #    a.teams[index].get_team_roster()
     """prints out information about each team"""
-    for team in a.teams:
-        print(team.name)
-        print(team.division)
-        for player in team.players:
-            print(player)
-        print('')
+    #for team in a.teams:
+     #   print(team.name)
+      #  print(team.division)
+       # for player in team.players:
+        #    print(player)
+        #print('')
+    
 
 
 
