@@ -13,6 +13,7 @@ Sorting methods to list best player on each team (given certain criteria)
 import requests
 import bs4
 
+
 root_url = 'http://www.basketball-reference.com'
 
 
@@ -49,6 +50,7 @@ class Team:
 
     def __init__(self,name,team_url,division,conference):
         self.name = str(name)
+        self.underscored_name = self.name.replace(" ","_")
         self.players = []
         self.team_url = 'http://www.basketball-reference.com' + str(team_url)
         self.division = str(division)
@@ -89,10 +91,10 @@ class Team:
 #            self.players.append(Player(jersey_number,name,url))
 
 
-def get_teams(season_url):
+def get_teams():
     teams = []
 
-    response = requests.get(season_url)
+    response = requests.get('http://www.basketball-reference.com/leagues/NBA_2015.html')
     soup = bs4.BeautifulSoup(response.content)
     team_soup = soup.find(id='all_standings').find(class_="valign_top")
 
@@ -139,9 +141,10 @@ def get_teams(season_url):
 
 
 if __name__ == '__main__':
-    a = get_teams('http://www.basketball-reference.com/leagues/NBA_2015.html')
+    a = get_teams()
     a[15].getTeamStats()
-    print(a[15].players)
+    for player in a[15].players:
+        print(player.stats)
 
 
 
