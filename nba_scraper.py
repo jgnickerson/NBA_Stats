@@ -1,37 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Dec 22 23:46:31 2014
-
-@author: Gordon Nickerson
-
-NBA Stats Scraper
-Features to Add:
-Sorting methods to list best player on each team (given certain criteria)
-
+nba_scraper.py
+Author: Gordon Nickerson
+scrapes perGame team stats of NBA teams
 """
 
 import requests
 import bs4
 
-
 root_url = 'http://www.basketball-reference.com'
-
-
-def createStatTemplate():
-    """creates a template dictionary of PerGame stat categories"""
-    response = requests.get("http://www.basketball-reference.com/teams/POR/2015.html")
-    soup = bs4.BeautifulSoup(response.content)
-    categories = soup.find(id='per_game').thead.tr.contents
-
-    stat_categories = []
-
-    for index in range(1,len(categories),2):
-        stat_categories.append(categories[index].string)
-    print(stat_categories)
-
-statTemplate = ['Rk', 'Player', 'Age', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
-#created with above method, relevant for perGame stats only
-
 
 class Player:
     def __init__(self,stats):
@@ -62,8 +39,8 @@ class Team:
     def __repr__(self):
         return self.name       
 
-    def getTeamStats(self):
-        """populates a list with Players from team roster, populates each Player with perGame stats"""
+    def scrape_team_stats(self):
+        """scrapes a list of players from each team, creating Player object with scraped stats for each"""
         response = requests.get(self.team_url)
         soup = bs4.BeautifulSoup(response.content)
         roster = soup.find(id='per_game').tbody
@@ -91,7 +68,8 @@ class Team:
 #            self.players.append(Player(jersey_number,name,url))
 
 
-def get_teams():
+def scrape_teams():
+    """scrapes a list of NBA teams, creating a Team object for each"""
     teams = []
 
     response = requests.get('http://www.basketball-reference.com/leagues/NBA_2015.html')
@@ -140,11 +118,29 @@ def get_teams():
     return teams
 
 
+def create_stat_template():
+    """creates a template list of PerGame stat categories"""
+    response = requests.get("http://www.basketball-reference.com/teams/POR/2015.html")
+    soup = bs4.BeautifulSoup(response.content)
+    categories = soup.find(id='per_game').thead.tr.contents
+
+    stat_categories = []
+
+    for index in range(1,len(categories),2):
+        stat_categories.append(categories[index].string)
+
+statTemplate = ['Rk', 'Player', 'Age', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
+
+
 if __name__ == '__main__':
-    a = get_teams()
-    a[15].getTeamStats()
-    for player in a[15].players:
-        print(player.stats)
+    """uncomment below block to build list of teams/players/stats"""
+
+    """
+    teams = scrape_teams()
+    for team in teams():
+        team.scrape_team_stats()
+    """
+
 
 
 
