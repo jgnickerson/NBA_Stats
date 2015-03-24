@@ -5,6 +5,9 @@ Author: Gordon Nickerson
 scrapes perGame team stats of NBA teams
 """
 
+#toDo
+# - Refactor to move Player and Team classes to nba_stats
+
 import requests
 import bs4
 
@@ -29,7 +32,7 @@ class Team:
         self.name = str(name)
         self.underscored_name = self.name.replace(" ","_")
         self.players = []
-        self.team_url = 'http://www.basketball-reference.com' + str(team_url)
+        self.team_url = str(team_url)
         self.division = str(division)
         self.conference = str(conference)
 
@@ -41,7 +44,7 @@ class Team:
 
     def scrape_team_stats(self):
         """scrapes a list of players from each team, creating Player object with scraped stats for each"""
-        response = requests.get(self.team_url)
+        response = requests.get(root_url + self.team_url)
         soup = bs4.BeautifulSoup(response.content)
         roster = soup.find(id='per_game').tbody
 
@@ -118,7 +121,7 @@ def scrape_teams():
     return teams
 
 
-def create_stat_template():
+def scrape_stat_template():
     """creates a template list of PerGame stat categories"""
     response = requests.get("http://www.basketball-reference.com/teams/POR/2015.html")
     soup = bs4.BeautifulSoup(response.content)
@@ -128,6 +131,7 @@ def create_stat_template():
 
     for index in range(1,len(categories),2):
         stat_categories.append(categories[index].string)
+    return stat_categories
 
 statTemplate = ['Rk', 'Player', 'Age', 'G', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', '2P', '2PA', '2P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
 

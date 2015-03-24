@@ -24,27 +24,32 @@ def retrieve_team_perGame_table(teamTableName):
 	return cursor.fetchall()
 
 
-def create_teamNames_table():
-	cursor.execute("CREATE TABLE IF NOT EXISTS listOfTeams(teams TEXT)")
+def create_teams_table():
+	db = sqlite3.connect('teams.db')
+	cursor = db.cursor()
+	cursor.execute("CREATE TABLE IF NOT EXISTS teams(team TEXT, name TEXT, conference TEXT, division TEXT, url TEXT)")
 	db.commit()
 
-def insert_into_teamNames_table():
-	teams = scrape_teams()
-	teamsList = []
-	for team in teams:
-		teamsList.append((str(team).replace(" ","_"),))
-	cursor.executemany("""INSERT INTO listOfTeams(teams) VALUES(?)""", teamsList)
-	db.commit()
-
-def retrieve_teamNames_table():
+def insert_into_teams_table():
 	db = sqlite3.connect('teams.db')
 	cursor = db.cursor()
 
-	cursor.execute("""SELECT teams FROM listOfTeams""")
+	teams = scrape_teams()
+	teamsList = []
+	for team in teams:
+		teamsList.append((str(team).replace(" ","_"),str(team),team.conference,team.division,team.team_url,))
+	cursor.executemany("""INSERT INTO teams(team, name, conference, division, url) VALUES(?,?,?,?,?)""", teamsList)
+	db.commit()
+
+def retrieve_teams_table():
+	db = sqlite3.connect('teams.db')
+	cursor = db.cursor()
+
+	cursor.execute("""SELECT * FROM teams""")
 	table = cursor.fetchall()
 	teams = []
 	for index in range(len(table)):
-		teams.append(table[index][0])
+		teams.append(table[index])
 	return teams
 
 
@@ -61,10 +66,10 @@ def scrape_team_data(teams, teamIndex):
 		players.append(sql_player_row)
 	return players
 
-def initialize_listOfTeams_table():
+def initialize_teams_table():
 	"""creates and fills database with team names, which are also the names of each team's stat tables"""
-	create_teamNames_table()
-	insert_into_teamNames_table()
+	create_teams_table()
+	insert_into_teams_table()
 
 
 def initialize_and_populate_team_perGame_tables():
@@ -80,21 +85,16 @@ def initialize_and_populate_team_perGame_tables():
 		
 
 def retrieve_and_assemble_team_perGame():
-	teams = retrieve_teamNames_table()
+	teams = retrieve_teams_table()
 
 	perGameStats = []
 	for index in range(len(teams)):
-		perGameStats.append(retrieve_team_perGame_table(teams[index]))
+		perGameStats.append(retrieve_team_perGame_table(teams[index][0]))
 	return perGameStats
 
 
 if __name__=='__main__':
-	#db = sqlite3.connect('teams.db')
-	#cursor = db.cursor()
-	#initialize_listOfTeams_table()
+	#initialize_teams_table()
 
-	#db = sqlite3.connect('perGame.db')
-	#cursor = db.cursor()
-
-	
-	
+	#initialize_and_populate_team_perGame_tables()
+	pass
